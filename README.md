@@ -11,8 +11,6 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
 
-![i18n-studio in action](images/i18n-studio-demo.png)
-
 ## Requirements
 
 - Visual Studio Code 1.99.0 or higher
