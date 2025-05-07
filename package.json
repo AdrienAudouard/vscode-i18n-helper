@@ -94,6 +94,11 @@
           "type": "boolean",
           "default": true,
           "description": "Enable/disable autocompletion in TypeScript files"
+        },
+        "i18nHelper.showTranslationButtons": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inline buttons above JSON keys to navigate between different language translation files"
         }
       }
     }

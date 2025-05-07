@@ -6,6 +6,7 @@ import { I18nCompletionProvider } from './providers/completion-provider';
 import { JsonKeyPathService } from './services/json-key-path-service';
 import { LanguageFilesService } from './services/language-files-service';
 import { LanguageNavigationProvider } from './providers/language-navigation-provider';
+import { LanguageNavigationCodeLensProvider } from './providers/language-navigation-code-lens-provider';
 import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
 
@@ -21,6 +22,10 @@ export function activate(context: vscode.ExtensionContext) {
 	const completionProvider = new I18nCompletionProvider(translationService);
 	const codeActionProvider = new I18nCodeActionProvider(translationService);
 	const languageNavigationProvider = new LanguageNavigationProvider(languageFilesService);
+	const languageNavigationCodeLensProvider = new LanguageNavigationCodeLensProvider(
+		languageFilesService,
+		jsonKeyPathService
+	);
 
 	// Register commands
 	const commandDisposables = registerCommands(translationService, jsonKeyPathService, languageFilesService);
@@ -47,6 +52,12 @@ export function activate(context: vscode.ExtensionContext) {
 	const jsonLanguageNavigationProvider = vscode.languages.registerCodeActionsProvider(
 		{ language: 'json', pattern: '**/*.json' },
 		languageNavigationProvider
+	);
+
+	// Register CodeLens provider for JSON files
+	const jsonLanguageNavigationCodeLensProvider = vscode.languages.registerCodeLensProvider(
+		{ language: 'json', pattern: '**/*.json' },
+		languageNavigationCodeLensProvider
 	);
 
 	// Create arrays of trigger characters (a-z, A-Z, 0-9)
@@ -112,6 +123,14 @@ export function activate(context: vscode.ExtensionContext) {
 	const activeEditorDisposable = vscode.window.onDidChangeActiveTextEditor(editor => {
 		if (editor) {
 			decorationProvider.updateDecorations(editor);
+			
+			// Update cursor position for CodeLens provider when editor changes
+			if (editor.document.languageId === 'json') {
+				languageNavigationCodeLensProvider.updateCursorPosition(editor.selection.active);
+			} else {
+				// If not a JSON file, clear cursor position
+				languageNavigationCodeLensProvider.updateCursorPosition(undefined);
+			}
 		}
 	});
 
@@ -122,11 +141,21 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	const cursorChangeDisposable = vscode.window.onDidChangeTextEditorSelection(event => {
+		// Update cursor position and refresh CodeLenses when cursor moves
+		if (event.textEditor.document.languageId === 'json') {
+			languageNavigationCodeLensProvider.updateCursorPosition(event.selections[0].active);
+		}
+	});
+
 	// Register configuration change handler
 	const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(event => {
 		if (event.affectsConfiguration('i18nHelper.i18nFilePath')) {
 			translationService.loadTranslations();
 			languageFilesService.scanLanguageFiles();
+			
+			// Refresh CodeLenses when configuration changes
+			languageNavigationCodeLensProvider.refresh();
 		}
 		
 		// If the TypeScript autocompletion setting changed, update the providers
@@ -137,11 +166,21 @@ export function activate(context: vscode.ExtensionContext) {
 			// Register new providers based on current setting
 			tsCompletionDisposables = registerTsCompletionProviders();
 		}
+		
+		// If the translation buttons setting changed, refresh CodeLenses
+		if (event.affectsConfiguration('i18nHelper.showTranslationButtons')) {
+			languageNavigationCodeLensProvider.refresh();
+		}
 	});
 
 	// Check if there's an active editor when the extension starts
 	if (vscode.window.activeTextEditor) {
 		decorationProvider.updateDecorations(vscode.window.activeTextEditor);
+		
+		// Initialize cursor position if active editor is a JSON file
+		if (vscode.window.activeTextEditor.document.languageId === 'json') {
+			languageNavigationCodeLensProvider.updateCursorPosition(vscode.window.activeTextEditor.selection.active);
+		}
 	}
 
 	// Register all disposables
@@ -154,8 +193,10 @@ export function activate(context: vscode.ExtensionContext) {
 		htmlCodeActionProvider,
 		tsCodeActionProvider,
 		jsonLanguageNavigationProvider,
+		jsonLanguageNavigationCodeLensProvider,
 		activeEditorDisposable,
 		changeDocumentDisposable,
+		cursorChangeDisposable,
 		configChangeDisposable,
 		decorationProvider.getDecorationType()
 	);
