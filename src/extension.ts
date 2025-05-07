@@ -4,6 +4,8 @@ import { DecorationProvider } from './providers/decoration-provider';
 import { I18nCodeActionProvider } from './providers/code-action-provider';
 import { I18nCompletionProvider } from './providers/completion-provider';
 import { JsonKeyPathService } from './services/json-key-path-service';
+import { LanguageFilesService } from './services/language-files-service';
+import { LanguageNavigationProvider } from './providers/language-navigation-provider';
 import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
 
@@ -14,12 +16,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// Create instances of our services
 	const translationService = new TranslationService();
 	const jsonKeyPathService = new JsonKeyPathService();
+	const languageFilesService = new LanguageFilesService(jsonKeyPathService);
 	const decorationProvider = new DecorationProvider(translationService);
 	const completionProvider = new I18nCompletionProvider(translationService);
 	const codeActionProvider = new I18nCodeActionProvider(translationService);
+	const languageNavigationProvider = new LanguageNavigationProvider(languageFilesService);
 
 	// Register commands
-	const commandDisposables = registerCommands(translationService, jsonKeyPathService);
+	const commandDisposables = registerCommands(translationService, jsonKeyPathService, languageFilesService);
 
 	// Store disposables for TypeScript completion providers
 	let tsCompletionDisposables: vscode.Disposable[] = [];
@@ -37,10 +41,13 @@ export function activate(context: vscode.ExtensionContext) {
 		'.'
 	);
 
-	// Register code action provider for TypeScript and HTML files
-
+	// Register code action providers for TypeScript, HTML, and JSON files
 	const htmlCodeActionProvider = vscode.languages.registerCodeActionsProvider('html', codeActionProvider);
 	const tsCodeActionProvider = vscode.languages.registerCodeActionsProvider('typescript', codeActionProvider);
+	const jsonLanguageNavigationProvider = vscode.languages.registerCodeActionsProvider(
+		{ language: 'json', pattern: '**/*.json' },
+		languageNavigationProvider
+	);
 
 	// Create arrays of trigger characters (a-z, A-Z, 0-9)
 	const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i)); // a-z
@@ -97,8 +104,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// Initial registration of TypeScript completion providers
 	tsCompletionDisposables = registerTsCompletionProviders();
 
-	// Load translations when the extension activates
+	// Load translations and scan language files when the extension activates
 	translationService.loadTranslations();
+	languageFilesService.scanLanguageFiles();
 
 	// Register event handlers
 	const activeEditorDisposable = vscode.window.onDidChangeActiveTextEditor(editor => {
@@ -118,6 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(event => {
 		if (event.affectsConfiguration('i18nHelper.i18nFilePath')) {
 			translationService.loadTranslations();
+			languageFilesService.scanLanguageFiles();
 		}
 		
 		// If the TypeScript autocompletion setting changed, update the providers
@@ -144,6 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
 		htmlLetterCompletionProvider,
 		htmlCodeActionProvider,
 		tsCodeActionProvider,
+		jsonLanguageNavigationProvider,
 		activeEditorDisposable,
 		changeDocumentDisposable,
 		configChangeDisposable,

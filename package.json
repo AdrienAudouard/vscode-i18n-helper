@@ -57,6 +57,10 @@
       {
         "command": "i18n-studio.addSelectionToI18n",
         "title": "Add Selection to i18n File"
+      },
+      {
+        "command": "i18n-studio.navigateToTranslation",
+        "title": "Navigate to Translation in Other Language File"
       }
     ],
     "menus": {

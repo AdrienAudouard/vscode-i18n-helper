@@ -3,21 +3,25 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { JsonKeyPathService } from '../services/json-key-path-service';
+import { LanguageFilesService } from '../services/language-files-service';
 import { TranslationService } from '../services/translation-service';
 
 /**
  * Registers all extension commands
  * @param translationService The translation service to use
  * @param jsonKeyPathService The JSON key path service to use
+ * @param languageFilesService The language files service to use
  * @returns Array of disposables for the registered commands
  */
 export function registerCommands(
   translationService: TranslationService,
-  jsonKeyPathService: JsonKeyPathService
+  jsonKeyPathService: JsonKeyPathService,
+  languageFilesService: LanguageFilesService
 ): vscode.Disposable[] {
   // Register a command to manually reload translations
   const reloadCommand = vscode.commands.registerCommand('i18n-studio.reloadTranslations', async () => {
     await translationService.loadTranslations();
+    await languageFilesService.scanLanguageFiles();
     vscode.window.showInformationMessage('i18n translations reloaded');
   });
 
@@ -185,11 +189,20 @@ export function registerCommands(
     }
   });
 
+  // Register command to navigate to translations in other language files
+  const navigateToTranslationCommand = vscode.commands.registerCommand(
+    'i18n-studio.navigateToTranslation',
+    async (document: vscode.TextDocument, position: vscode.Position, targetLanguage: string) => {
+      await languageFilesService.navigateToTranslation(document, position, targetLanguage);
+    }
+  );
+
   return [
     reloadCommand, 
     toggleCommand, 
     openTranslationFileCommand, 
     copyJsonKeyPathCommand,
-    addSelectionToI18nCommand
+    addSelectionToI18nCommand,
+    navigateToTranslationCommand
   ];
 }

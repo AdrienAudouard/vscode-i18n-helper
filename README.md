@@ -11,6 +11,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
 - Easily add any text to the i18n translation file
+- Navigate between different language files with a single click in JSON files
 
 ## Requirements
 
@@ -31,6 +32,7 @@ This extension contributes the following settings:
 * `i18n Helper: Toggle On/Off`: Enable or disable the extension
 * `i18n Helper: Open Translation File`: Open the translation file at a specific key (usually triggered via code actions)
 * `Copy JSON Key Path`: Copy the full path to a JSON key (available in the context menu when right-clicking in JSON files)
+* `Navigate to Translation in Other Language File`: Navigate to the same key in a different language file (triggered via code actions)
 
 ## How to Use
 
@@ -42,17 +44,31 @@ This extension contributes the following settings:
 6. Hover over any i18n key and click on the lightbulb icon (or press Ctrl+. / Cmd+.) to see available actions
 7. Select "Open translation file for '[key]'" to jump directly to that key in the translation file
 
-### Working with JSON files
+### Working with JSON Translation Files
 
-When working with JSON files:
+When working with JSON translation files:
+
 1. Right-click on any key or value in a JSON file
 2. Select "Copy JSON Key Path" from the context menu
 3. The full path to that key (e.g., "general.generate") will be copied to your clipboard
 
+### Navigating Between Language Files
+
+When working with multiple language files (e.g., en.json, fr.json, es.json):
+
+1. Open any translation file (e.g., en.json)
+2. Place your cursor on a translation key
+3. Click on the lightbulb icon (or press Ctrl+. / Cmd+.) that appears
+4. Choose "View in XX translation file" where XX is the language code (FR, ES, etc.)
+5. The extension will open the corresponding language file and navigate to the same key
+
+This makes it easy to compare and edit translations across different languages without manually searching for the same key in each file.
+
 ## Example
 
-If your translation file (`en.json`) contains:
+If your translation files contain:
 
+**en.json**:
 ```json
 {
   "general": {
@@ -62,13 +78,22 @@ If your translation file (`en.json`) contains:
 }
 ```
 
+**fr.json**:
+```json
+{
+  "general": {
+    "generate": "Générer",
+    "cancel": "Annuler"
+  }
+}
+```
+
 When you have a string like `"general.generate"` in your code, you'll see: `"general.generate" → Generate` displayed in your editor.
 
-If you right-click on `"generate"` in the JSON file, you can select "Copy JSON Key Path" to copy `general.generate` to your clipboard.
+If you're editing en.json and your cursor is on the "generate" key, you can easily navigate to the same key in fr.json using the code action menu.
 
 ## Known Issues
 
-- Only supports English translation files at the moment
 - Only detects i18n keys in string literals
 
 ## Release Notes
@@ -79,3 +104,4 @@ Initial release of i18n-studio with basic functionality:
 - Loading translations from JSON file
 - Displaying translations next to i18n keys
 - Configurable settings
+- Cross-language navigation between translation files
