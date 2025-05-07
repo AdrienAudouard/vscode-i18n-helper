@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { TranslationService } from '../services/translation-service';
 import { I18N_KEY_PATTERN } from '../utils/regex-patterns';
+import { TranslationService } from '../services/translation-service';
 
 /**
  * Provides code actions for i18n keys to open the translation file

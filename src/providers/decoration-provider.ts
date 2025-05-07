@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
-import { TranslationService } from '../services/translation-service';
 import { I18N_KEY_PATTERN } from '../utils/regex-patterns';
+import { TranslationService } from '../services/translation-service';
 
 /**
  * Provider class for handling text decorations for i18n keys
