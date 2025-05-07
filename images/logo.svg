@@ -1,0 +1,15 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="128" height="128" rx="14" fill="#2C7FBE" />
+
+    <!-- Globe lines -->
+    <circle cx="64" cy="64" r="48" stroke="white" stroke-width="2" fill="none" />
+    <path d="M64 16 C64 112, 64 112, 64 16" stroke="white" stroke-width="2" />
+    <path d="M16 64 C112 64, 112 64, 16 64" stroke="white" stroke-width="2" />
+    <ellipse cx="64" cy="64" rx="32" ry="48" stroke="white" stroke-width="2" fill="none" />
+    <ellipse cx="64" cy="64" rx="48" ry="32" stroke="white" stroke-width="2" fill="none" />
+
+    <!-- i18n text -->
+    <text x="64" y="70" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="24"
+        fill="white">i18n</text>
+</svg>
