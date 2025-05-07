@@ -7,6 +7,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Automatically loads Angular i18n translation files (defaults to `src/assets/i18n/en.json`)
 - Displays translated values next to i18n keys in HTML and TypeScript files
 - Supports nested i18n keys with dot notation (e.g., `"general.generate"`)
+- Provides code actions to quickly open the translation file at the specific key
 - Easily toggle the extension on/off with a command
 
 ![i18n-helper in action](images/i18n-helper-demo.png)
@@ -22,11 +23,13 @@ This extension contributes the following settings:
 
 * `i18nHelper.enabled`: Enable/disable the i18n-helper extension
 * `i18nHelper.i18nFilePath`: Path to the i18n JSON file relative to the workspace root (defaults to `src/assets/i18n/en.json`)
+* `i18nHelper.tsAutocompletionEnabled`: Enable/disable autocompletion in TypeScript files
 
 ## Commands
 
 * `i18n Helper: Reload Translations`: Manually reload the translations file
 * `i18n Helper: Toggle On/Off`: Enable or disable the extension
+* `i18n Helper: Open Translation File`: Open the translation file at a specific key (usually triggered via code actions)
 
 ## How to Use
 
@@ -35,6 +38,8 @@ This extension contributes the following settings:
 3. If your i18n files are not in the default location (`src/assets/i18n/en.json`), update the path in the settings
 4. Open a component file (HTML or TypeScript)
 5. The extension will display translation values next to i18n keys in the file
+6. Hover over any i18n key and click on the lightbulb icon (or press Ctrl+. / Cmd+.) to see available actions
+7. Select "Open translation file for '[key]'" to jump directly to that key in the translation file
 
 ## Example
 

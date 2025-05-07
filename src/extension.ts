@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { DecorationProvider } from './providers/decoration-provider';
+import { I18nCodeActionProvider } from './providers/code-action-provider';
 import { I18nCompletionProvider } from './providers/completion-provider';
 import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
@@ -13,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const translationService = new TranslationService();
 	const decorationProvider = new DecorationProvider(translationService);
 	const completionProvider = new I18nCompletionProvider(translationService);
+	const codeActionProvider = new I18nCodeActionProvider(translationService);
 
 	// Register commands
 	const commandDisposables = registerCommands(translationService);
@@ -32,6 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
 		completionProvider,
 		'.'
 	);
+
+	// Register code action provider for TypeScript and HTML files
+
+	const htmlCodeActionProvider = vscode.languages.registerCodeActionsProvider('html', codeActionProvider);
+	const tsCodeActionProvider = vscode.languages.registerCodeActionsProvider('typescript', codeActionProvider);
 
 	// Create arrays of trigger characters (a-z, A-Z, 0-9)
 	const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i)); // a-z
@@ -133,6 +140,8 @@ export function activate(context: vscode.ExtensionContext) {
 		htmlCompletionProvider,
 		htmlDotCompletionProvider,
 		htmlLetterCompletionProvider,
+		htmlCodeActionProvider,
+		tsCodeActionProvider,
 		activeEditorDisposable,
 		changeDocumentDisposable,
 		configChangeDisposable,

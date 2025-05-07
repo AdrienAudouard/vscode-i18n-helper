@@ -1,3 +1,5 @@
+import * as fs from 'fs-extra';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { TranslationService } from '../services/translation-service';
@@ -22,5 +24,70 @@ export function registerCommands(translationService: TranslationService): vscode
     vscode.window.showInformationMessage(`i18n-helper ${!isEnabled ? 'enabled' : 'disabled'}`);
   });
 
-  return [reloadCommand, toggleCommand];
+  // Register a command to open the translation file at a specific key
+  const openTranslationFileCommand = vscode.commands.registerCommand('i18n-helper.openTranslationFile', async (key: string) => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+      vscode.window.showWarningMessage('No workspace folder is open');
+      return;
+    }
+
+    const config = vscode.workspace.getConfiguration('i18nHelper');
+    const i18nFilePath = config.get('i18nFilePath') as string || 'src/assets/i18n/en.json';
+    const absolutePath = path.join(workspaceFolders[0].uri.fsPath, i18nFilePath);
+
+    try {
+      if (await fs.pathExists(absolutePath)) {
+        // Open the file
+        const document = await vscode.workspace.openTextDocument(absolutePath);
+        const editor = await vscode.window.showTextDocument(document);
+        
+        // Try to find the key in the file to position the cursor
+        const text = document.getText();
+        const keyParts = key.split('.');
+        
+        // Function to find the position of a nested key
+        const findPositionForKey = (keySegments: string[]): number => {
+          let searchPos = 0;
+          let currentDepth = 0;
+          
+          for (const segment of keySegments) {
+            const pattern = new RegExp(`"${segment}"\\s*:`, 'g');
+            pattern.lastIndex = searchPos;
+            
+            const match = pattern.exec(text);
+            if (match) {
+              searchPos = match.index + match[0].length;
+              currentDepth++;
+            } else {
+              break;
+            }
+          }
+          
+          return currentDepth === keySegments.length ? searchPos : -1;
+        };
+        
+        const position = findPositionForKey(keyParts);
+        
+        if (position !== -1) {
+          // Calculate line and character from position
+          const pos = document.positionAt(position);
+          
+          // Set selection at the found position
+          editor.selection = new vscode.Selection(pos, pos);
+          editor.revealRange(
+            new vscode.Range(pos, pos),
+            vscode.TextEditorRevealType.InCenter
+          );
+        }
+      } else {
+        vscode.window.showWarningMessage(`i18n file not found at ${absolutePath}`);
+      }
+    } catch (error) {
+      console.error('Error opening translation file:', error);
+      vscode.window.showErrorMessage(`Error opening i18n file: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  });
+
+  return [reloadCommand, toggleCommand, openTranslationFileCommand];
 }
