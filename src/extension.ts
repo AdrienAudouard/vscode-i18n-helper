@@ -43,6 +43,25 @@ export function activate(context: vscode.ExtensionContext) {
 		'.'
 	);
 
+	// Create arrays of trigger characters (a-z, A-Z, 0-9)
+	const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i)); // a-z
+	const upperLetters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)); // A-Z
+	const numbers = Array.from({ length: 10 }, (_, i) => String(i)); // 0-9
+	const triggerChars = [...letters, ...upperLetters, ...numbers, '\''];
+	
+	// Register completion providers with letters and numbers as trigger characters
+	const tsLetterCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'typescript',
+		completionProvider,
+		...triggerChars
+	);
+	
+	const htmlLetterCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'html',
+		completionProvider,
+		...triggerChars
+	);
+
 	// Load translations when the extension activates
 	translationService.loadTranslations();
 
@@ -79,6 +98,8 @@ export function activate(context: vscode.ExtensionContext) {
 		htmlCompletionProvider,
 		tsDotCompletionProvider,
 		htmlDotCompletionProvider,
+		tsLetterCompletionProvider,
+		htmlLetterCompletionProvider,
 		activeEditorDisposable,
 		changeDocumentDisposable,
 		configChangeDisposable,
