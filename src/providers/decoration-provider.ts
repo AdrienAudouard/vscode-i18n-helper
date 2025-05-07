@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { TranslationService } from '../services/translation-service';
+import { I18N_KEY_PATTERN } from '../utils/regex-patterns';
 
 /**
  * Provider class for handling text decorations for i18n keys
@@ -49,9 +50,8 @@ export class DecorationProvider {
     const text = document.getText();
     const decorations: vscode.DecorationOptions[] = [];
     
-    // Find potential i18n keys in the document
-    // This regex pattern looks for strings that could be i18n keys (with dot notation)
-    const keyPattern = /(['"])([a-z0-9]+(?:\.[a-z0-9]+)+)\1/gi;
+    // Find potential i18n keys in the document using the shared regex pattern
+    const keyPattern = new RegExp(I18N_KEY_PATTERN);
     
     let match;
     while ((match = keyPattern.exec(text))) {

@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { TranslationService } from '../services/translation-service';
+import { I18N_KEY_PATTERN } from '../utils/regex-patterns';
 
 /**
  * Provides code actions for i18n keys to open the translation file
@@ -30,8 +31,8 @@ export class I18nCodeActionProvider implements vscode.CodeActionProvider {
     const line = document.lineAt(range.start.line);
     const text = line.text;
     
-    // Find potential i18n keys in the line
-    const keyPattern = /(['"])([a-z0-9]+(?:\.[a-z0-9]+)+)\1/gi;
+    // Find potential i18n keys in the line using the shared regex pattern
+    const keyPattern = new RegExp(I18N_KEY_PATTERN);
     
     const codeActions: vscode.CodeAction[] = [];
     let match: RegExpExecArray | null;
