@@ -10,6 +10,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Provides code actions to quickly open the translation file at the specific key
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
+- Easily add any text to the i18n translation file
 
 ## Requirements
 
