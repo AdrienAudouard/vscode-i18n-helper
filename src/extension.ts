@@ -4,6 +4,7 @@ import { DecorationProvider } from './providers/decoration-provider';
 import { I18nCodeActionProvider } from './providers/code-action-provider';
 import { I18nCompletionProvider } from './providers/completion-provider';
 import { TranslationService } from './services/translation-service';
+import { JsonKeyPathService } from './services/json-key-path-service';
 import { registerCommands } from './commands';
 
 // This method is called when your extension is activated
@@ -12,12 +13,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Create instances of our services
 	const translationService = new TranslationService();
+	const jsonKeyPathService = new JsonKeyPathService();
 	const decorationProvider = new DecorationProvider(translationService);
 	const completionProvider = new I18nCompletionProvider(translationService);
 	const codeActionProvider = new I18nCodeActionProvider(translationService);
 
 	// Register commands
-	const commandDisposables = registerCommands(translationService);
+	const commandDisposables = registerCommands(translationService, jsonKeyPathService);
 
 	// Store disposables for TypeScript completion providers
 	let tsCompletionDisposables: vscode.Disposable[] = [];

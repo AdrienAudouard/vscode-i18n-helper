@@ -9,6 +9,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Supports nested i18n keys with dot notation (e.g., `"general.generate"`)
 - Provides code actions to quickly open the translation file at the specific key
 - Easily toggle the extension on/off with a command
+- Right-click on any key or value in a JSON file to copy its full key path
 
 ![i18n-helper in action](images/i18n-helper-demo.png)
 
@@ -30,6 +31,7 @@ This extension contributes the following settings:
 * `i18n Helper: Reload Translations`: Manually reload the translations file
 * `i18n Helper: Toggle On/Off`: Enable or disable the extension
 * `i18n Helper: Open Translation File`: Open the translation file at a specific key (usually triggered via code actions)
+* `Copy JSON Key Path`: Copy the full path to a JSON key (available in the context menu when right-clicking in JSON files)
 
 ## How to Use
 
@@ -40,6 +42,13 @@ This extension contributes the following settings:
 5. The extension will display translation values next to i18n keys in the file
 6. Hover over any i18n key and click on the lightbulb icon (or press Ctrl+. / Cmd+.) to see available actions
 7. Select "Open translation file for '[key]'" to jump directly to that key in the translation file
+
+### Working with JSON files
+
+When working with JSON files:
+1. Right-click on any key or value in a JSON file
+2. Select "Copy JSON Key Path" from the context menu
+3. The full path to that key (e.g., "general.generate") will be copied to your clipboard
 
 ## Example
 
@@ -55,6 +64,8 @@ If your translation file (`en.json`) contains:
 ```
 
 When you have a string like `"general.generate"` in your code, you'll see: `"general.generate" → Generate` displayed in your editor.
+
+If you right-click on `"generate"` in the JSON file, you can select "Copy JSON Key Path" to copy `general.generate` to your clipboard.
 
 ## Known Issues
 

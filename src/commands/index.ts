@@ -2,14 +2,19 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { JsonKeyPathService } from '../services/json-key-path-service';
 import { TranslationService } from '../services/translation-service';
 
 /**
  * Registers all extension commands
  * @param translationService The translation service to use
+ * @param jsonKeyPathService The JSON key path service to use
  * @returns Array of disposables for the registered commands
  */
-export function registerCommands(translationService: TranslationService): vscode.Disposable[] {
+export function registerCommands(
+  translationService: TranslationService,
+  jsonKeyPathService: JsonKeyPathService
+): vscode.Disposable[] {
   // Register a command to manually reload translations
   const reloadCommand = vscode.commands.registerCommand('i18n-helper.reloadTranslations', async () => {
     await translationService.loadTranslations();
@@ -89,5 +94,23 @@ export function registerCommands(translationService: TranslationService): vscode
     }
   });
 
-  return [reloadCommand, toggleCommand, openTranslationFileCommand];
+  // Register a command to copy the JSON key path
+  const copyJsonKeyPathCommand = vscode.commands.registerCommand('i18n-helper.copyJsonKeyPath', async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== 'json') {
+      return;
+    }
+
+    const position = editor.selection.active;
+    const keyPath = jsonKeyPathService.getKeyPathAtPosition(editor.document, position);
+
+    if (keyPath) {
+      await vscode.env.clipboard.writeText(keyPath);
+      vscode.window.showInformationMessage(`Copied key path: ${keyPath}`);
+    } else {
+      vscode.window.showInformationMessage('No valid JSON key found at cursor position');
+    }
+  });
+
+  return [reloadCommand, toggleCommand, openTranslationFileCommand, copyJsonKeyPathCommand];
 }
