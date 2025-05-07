@@ -3,8 +3,8 @@ import * as vscode from 'vscode';
 import { DecorationProvider } from './providers/decoration-provider';
 import { I18nCodeActionProvider } from './providers/code-action-provider';
 import { I18nCompletionProvider } from './providers/completion-provider';
-import { TranslationService } from './services/translation-service';
 import { JsonKeyPathService } from './services/json-key-path-service';
+import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
 
 // This method is called when your extension is activated
