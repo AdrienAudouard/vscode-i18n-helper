@@ -40,6 +40,32 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage(`i18n-helper ${!isEnabled ? 'enabled' : 'disabled'}`);
 	});
 
+	// Register completion provider for TypeScript files - without requiring a trigger character
+	const tsCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'typescript',
+		new I18nCompletionProvider()
+	);
+
+	// Register completion provider for HTML files - without requiring a trigger character
+	const htmlCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'html',
+		new I18nCompletionProvider()
+	);
+
+	// Register completion providers with dot as an additional trigger character
+	// This allows for continued completion of nested keys
+	const tsDotCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'typescript',
+		new I18nCompletionProvider(),
+		'.'
+	);
+
+	const htmlDotCompletionProvider = vscode.languages.registerCompletionItemProvider(
+		'html',
+		new I18nCompletionProvider(),
+		'.'
+	);
+
 	// Load translations when the extension activates
 	loadTranslations();
 
@@ -73,6 +99,10 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		reloadCommand,
 		toggleCommand,
+		tsCompletionProvider,
+		htmlCompletionProvider,
+		tsDotCompletionProvider,
+		htmlDotCompletionProvider,
 		activeEditorDisposable,
 		changeDocumentDisposable,
 		configChangeDisposable,
@@ -187,5 +217,43 @@ function updateDecorations(editor: vscode.TextEditor) {
 	editor.setDecorations(decorationType, decorations);
 }
 
+/**
+ * Provides completion items for i18n keys
+ */
+class I18nCompletionProvider implements vscode.CompletionItemProvider {
+	provideCompletionItems(
+		document: vscode.TextDocument,
+		position: vscode.Position,
+		token: vscode.CancellationToken,
+		context: vscode.CompletionContext
+	): vscode.ProviderResult<vscode.CompletionItem[]> {
+		if (!translationsLoaded) {
+			return [];
+		}
+
+		const completionItems: vscode.CompletionItem[] = [];
+		const addCompletionItems = (obj: I18nTranslations, prefix: string = '') => {
+			for (const key in obj) {
+				const value = obj[key];
+				const fullKey = prefix ? `${prefix}.${key}` : key;
+				const item = new vscode.CompletionItem(fullKey, vscode.CompletionItemKind.Text);
+				if (typeof value === 'string') {
+					item.detail = value;
+				}
+				completionItems.push(item);
+
+				if (typeof value === 'object') {
+					addCompletionItems(value, fullKey);
+				}
+			}
+		};
+
+		addCompletionItems(translations);
+		return completionItems;
+	}
+}
+
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate(): void {
+	// Clean up resources here if needed
+}
