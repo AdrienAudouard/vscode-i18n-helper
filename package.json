@@ -1,6 +1,6 @@
 {
-  "name": "i18n-helper",
-  "displayName": "i18n-helper",
+  "name": "i18n-studio",
+  "displayName": "i18n Studio",
   "publisher": "AdrienAudouard",
   "description": "Powerful Angular internationalization (i18n) extension for VS Code that displays translations inline, provides autocompletion for i18n keys in TypeScript and HTML files, and offers quick access to translation files. Streamline your multilingual development workflow.",
   "version": "0.0.1",
