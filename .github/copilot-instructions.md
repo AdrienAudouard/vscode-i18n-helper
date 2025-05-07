@@ -31,6 +31,9 @@ This document provides detailed guidelines and expectations for using GitHub Cop
    - Validate and sanitize all user inputs to prevent injection attacks, data corruption, or unexpected behavior.
    - Use libraries or frameworks for input validation where applicable.
 
+6. **Always update README**
+   -  Always update the readme with the new feature added
+
 ---
 
 ## General TypeScript Best Practices
