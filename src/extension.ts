@@ -9,7 +9,7 @@ import { registerCommands } from './commands';
 
 // This method is called when your extension is activated
 export function activate(context: vscode.ExtensionContext) {
-	console.log('i18n-helper extension is now active!');
+	console.log('i18n-studio extension is now active!');
 
 	// Create instances of our services
 	const translationService = new TranslationService();

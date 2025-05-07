@@ -71,7 +71,7 @@ export class I18nCodeActionProvider implements vscode.CodeActionProvider {
     
     action.command = {
       title: `Open translation file for '${key}'`,
-      command: 'i18n-helper.openTranslationFile',
+      command: 'i18n-studio.openTranslationFile',
       arguments: [key]
     };
     

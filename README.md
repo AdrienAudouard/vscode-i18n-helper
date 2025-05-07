@@ -1,4 +1,4 @@
-# i18n-helper
+# i18n-studio
 
 A Visual Studio Code extension that helps Angular developers work with i18n translations by displaying the actual translated text next to i18n keys in component files.
 
@@ -11,7 +11,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
 
-![i18n-helper in action](images/i18n-helper-demo.png)
+![i18n-studio in action](images/i18n-studio-demo.png)
 
 ## Requirements
 
@@ -22,7 +22,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 
 This extension contributes the following settings:
 
-* `i18nHelper.enabled`: Enable/disable the i18n-helper extension
+* `i18nHelper.enabled`: Enable/disable the i18n-studio extension
 * `i18nHelper.i18nFilePath`: Path to the i18n JSON file relative to the workspace root (defaults to `src/assets/i18n/en.json`)
 * `i18nHelper.tsAutocompletionEnabled`: Enable/disable autocompletion in TypeScript files
 
@@ -76,7 +76,7 @@ If you right-click on `"generate"` in the JSON file, you can select "Copy JSON K
 
 ### 0.0.1
 
-Initial release of i18n-helper with basic functionality:
+Initial release of i18n-studio with basic functionality:
 - Loading translations from JSON file
 - Displaying translations next to i18n keys
 - Configurable settings

@@ -4,8 +4,8 @@
   "publisher": "AdrienAudouard",
   "description": "Powerful Angular internationalization (i18n) extension for VS Code that displays translations inline, provides autocompletion for i18n keys in TypeScript and HTML files, and offers quick access to translation files. Streamline your multilingual development workflow.",
   "version": "0.0.1",
-  "homepage": "https://github.com/AdrienAudouard/vscode-i18n-helper",
-  "repository": "https://github.com/AdrienAudouard/vscode-i18n-helper",
+  "homepage": "https://github.com/AdrienAudouard/vscode-i18n-studio",
+  "repository": "https://github.com/AdrienAudouard/vscode-i18n-studio",
   "keywords": [
     "i18n",
     "internationalization",
@@ -38,27 +38,36 @@
   "contributes": {
     "commands": [
       {
-        "command": "i18n-helper.reloadTranslations",
+        "command": "i18n-studio.reloadTranslations",
         "title": "i18n Helper: Reload Translations"
       },
       {
-        "command": "i18n-helper.toggle",
+        "command": "i18n-studio.toggle",
         "title": "i18n Helper: Toggle On/Off"
       },
       {
-        "command": "i18n-helper.openTranslationFile",
+        "command": "i18n-studio.openTranslationFile",
         "title": "i18n Helper: Open Translation File"
       },
       {
-        "command": "i18n-helper.copyJsonKeyPath",
+        "command": "i18n-studio.copyJsonKeyPath",
         "title": "Copy JSON Key Path"
+      },
+      {
+        "command": "i18n-studio.addSelectionToI18n",
+        "title": "Add Selection to i18n File"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "when": "resourceLangId == json",
-          "command": "i18n-helper.copyJsonKeyPath",
+          "command": "i18n-studio.copyJsonKeyPath",
+          "group": "1_modification"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "i18n-studio.addSelectionToI18n",
           "group": "1_modification"
         }
       ]
@@ -69,7 +78,7 @@
         "i18nHelper.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable i18n-helper"
+          "description": "Enable/disable i18n-studio"
         },
         "i18nHelper.i18nFilePath": {
           "type": "string",

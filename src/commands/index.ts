@@ -16,21 +16,21 @@ export function registerCommands(
   jsonKeyPathService: JsonKeyPathService
 ): vscode.Disposable[] {
   // Register a command to manually reload translations
-  const reloadCommand = vscode.commands.registerCommand('i18n-helper.reloadTranslations', async () => {
+  const reloadCommand = vscode.commands.registerCommand('i18n-studio.reloadTranslations', async () => {
     await translationService.loadTranslations();
     vscode.window.showInformationMessage('i18n translations reloaded');
   });
 
-  // Register a command to toggle i18n-helper
-  const toggleCommand = vscode.commands.registerCommand('i18n-helper.toggle', () => {
+  // Register a command to toggle i18n-studio
+  const toggleCommand = vscode.commands.registerCommand('i18n-studio.toggle', () => {
     const config = vscode.workspace.getConfiguration('i18nHelper');
     const isEnabled = config.get('enabled');
     config.update('enabled', !isEnabled, vscode.ConfigurationTarget.Workspace);
-    vscode.window.showInformationMessage(`i18n-helper ${!isEnabled ? 'enabled' : 'disabled'}`);
+    vscode.window.showInformationMessage(`i18n-studio ${!isEnabled ? 'enabled' : 'disabled'}`);
   });
 
   // Register a command to open the translation file at a specific key
-  const openTranslationFileCommand = vscode.commands.registerCommand('i18n-helper.openTranslationFile', async (key: string) => {
+  const openTranslationFileCommand = vscode.commands.registerCommand('i18n-studio.openTranslationFile', async (key: string) => {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) {
       vscode.window.showWarningMessage('No workspace folder is open');
@@ -95,7 +95,7 @@ export function registerCommands(
   });
 
   // Register a command to copy the JSON key path
-  const copyJsonKeyPathCommand = vscode.commands.registerCommand('i18n-helper.copyJsonKeyPath', async () => {
+  const copyJsonKeyPathCommand = vscode.commands.registerCommand('i18n-studio.copyJsonKeyPath', async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor || editor.document.languageId !== 'json') {
       return;
@@ -112,5 +112,84 @@ export function registerCommands(
     }
   });
 
-  return [reloadCommand, toggleCommand, openTranslationFileCommand, copyJsonKeyPathCommand];
+  // Register a command to add selected text to i18n file
+  const addSelectionToI18nCommand = vscode.commands.registerCommand('i18n-studio.addSelectionToI18n', async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.selection.isEmpty) {
+      vscode.window.showWarningMessage('No text selected');
+      return;
+    }
+
+    // Get the selected text
+    const selectedText = editor.document.getText(editor.selection);
+    if (!selectedText.trim()) {
+      vscode.window.showWarningMessage('Selected text is empty');
+      return;
+    }
+
+    // Prompt for translation key
+    const key = await vscode.window.showInputBox({
+      prompt: 'Enter translation key (e.g., common.buttons.submit)',
+      placeHolder: 'category.subcategory.key',
+      validateInput: (input) => {
+        if (!input || !input.trim()) {
+          return 'Key cannot be empty';
+        }
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*$/.test(input)) {
+          return 'Invalid key format. Use dot notation with alphanumeric characters and underscores only';
+        }
+        return null;
+      }
+    });
+
+    if (!key) {
+      // User cancelled
+      return;
+    }
+
+    // Add the translation
+    const success = await translationService.addTranslation(key, selectedText);
+    if (success) {
+      vscode.window.showInformationMessage(`Added translation key "${key}" with value "${selectedText}"`);
+      
+      // Reload translations to ensure everything is up to date
+      await translationService.loadTranslations();
+      
+      // Ask if user wants to replace the selected text with the i18n key reference
+      const replaceSelection = await vscode.window.showQuickPick(['Yes', 'No'], {
+        placeHolder: 'Replace selected text with i18n key reference?'
+      });
+      
+      if (replaceSelection === 'Yes') {
+        // Determine the appropriate format based on file type
+        let replacement = key;
+        
+        switch (editor.document.languageId) {
+          case 'typescript': 
+          case 'javascript':
+            // Assume Angular's TranslateService usage
+            replacement = `this.translateService.instant('${key}')`;
+            break;
+          case 'html':
+            // Assume Angular's translate pipe
+            replacement = `{{ '${key}' | translate }}`;
+            break;
+          // Add more cases for other frameworks as needed
+        }
+        
+        // Replace the selected text
+        editor.edit((editBuilder) => {
+          editBuilder.replace(editor.selection, replacement);
+        });
+      }
+    }
+  });
+
+  return [
+    reloadCommand, 
+    toggleCommand, 
+    openTranslationFileCommand, 
+    copyJsonKeyPathCommand,
+    addSelectionToI18nCommand
+  ];
 }
