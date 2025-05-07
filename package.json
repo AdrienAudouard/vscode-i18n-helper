@@ -37,6 +37,11 @@
           "type": "string",
           "default": "src/assets/i18n/en.json",
           "description": "Path to the i18n JSON file relative to the workspace root"
+        },
+        "i18nHelper.tsAutocompletionEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable autocompletion in TypeScript files"
         }
       }
     }
