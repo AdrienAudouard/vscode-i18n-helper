@@ -11,7 +11,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Supports nested i18n keys with dot notation (e.g., `"general.generate"`)
 - Provides code actions to quickly open the translation file at the specific key
 ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/go-to-action.gif?raw=true)
-- Shows inline buttons above JSON keys to navigate to translations in different languages
+- Shows inline buttons above JSON keys to navigate between translations in different languages
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
 ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/copy-key-path.gif?raw=true)

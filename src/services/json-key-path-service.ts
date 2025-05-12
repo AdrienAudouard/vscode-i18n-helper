@@ -17,9 +17,6 @@ export class JsonKeyPathService {
       const text = document.getText();
       const jsonObj = JSON.parse(text);
       
-      // Find the key path at the position
-      const offset = document.offsetAt(position);
-      
       // Get the line and check if the position is on a key or value
       const line = document.lineAt(position.line).text;
       
@@ -28,8 +25,17 @@ export class JsonKeyPathService {
         return undefined;
       }
       
+      // Get the colon position
+      const colonPos = line.indexOf(':');
+      
+      // Check if cursor is positioned on the key (before the colon)
+      // If the cursor is after the colon, it's likely on a value, not a key
+      if (position.character > colonPos) {
+        return undefined;
+      }
+      
       // Extract the key from the line (everything before the colon)
-      let key = line.substring(0, line.indexOf(':')).trim();
+      let key = line.substring(0, colonPos).trim();
       
       // Remove the quotes from the key
       if ((key.startsWith('"') && key.endsWith('"')) || 
