@@ -18,11 +18,6 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Easily add any text to the i18n translation file
 - Navigate between different language files with a single click in JSON files
 
-## Requirements
-
-- Visual Studio Code 1.99.0 or higher
-- Angular project with i18n translation files in JSON format
-
 ## Extension Settings
 
 This extension contributes the following settings:
@@ -104,18 +99,3 @@ If your translation files contain:
 When you have a string like `"general.generate"` in your code, you'll see: `"general.generate" → Generate` displayed in your editor.
 
 If you're editing en.json and your cursor is on the "generate" key, you'll see a "FR" button above the line that you can click to navigate directly to the same key in fr.json.
-
-## Known Issues
-
-- Only detects i18n keys in string literals
-
-## Release Notes
-
-### 0.0.1
-
-Initial release of i18n-studio with basic functionality:
-- Loading translations from JSON file
-- Displaying translations next to i18n keys
-- Configurable settings
-- Cross-language navigation between translation files
-- Inline translation navigation buttons above JSON keys
