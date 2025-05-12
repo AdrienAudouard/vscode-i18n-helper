@@ -6,11 +6,15 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 
 - Automatically loads Angular i18n translation files (defaults to `src/assets/i18n/en.json`)
 - Displays translated values next to i18n keys in HTML and TypeScript files
+- ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/html-translated-label.png?raw=true)
+- ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/ts-translated-label.png?raw=true)
 - Supports nested i18n keys with dot notation (e.g., `"general.generate"`)
 - Provides code actions to quickly open the translation file at the specific key
+- ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/go-to-action.gif?raw=true)
 - Shows inline buttons above JSON keys to navigate to translations in different languages
 - Easily toggle the extension on/off with a command
 - Right-click on any key or value in a JSON file to copy its full key path
+- ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/copy-key-path.gif?raw=true)
 - Easily add any text to the i18n translation file
 - Navigate between different language files with a single click in JSON files
 
