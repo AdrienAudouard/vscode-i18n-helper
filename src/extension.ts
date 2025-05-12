@@ -5,8 +5,8 @@ import { I18nCodeActionProvider } from './providers/code-action-provider';
 import { I18nCompletionProvider } from './providers/completion-provider';
 import { JsonKeyPathService } from './services/json-key-path-service';
 import { LanguageFilesService } from './services/language-files-service';
-import { LanguageNavigationProvider } from './providers/language-navigation-provider';
 import { LanguageNavigationCodeLensProvider } from './providers/language-navigation-code-lens-provider';
+import { LanguageNavigationProvider } from './providers/language-navigation-provider';
 import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
 

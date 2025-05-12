@@ -28,6 +28,9 @@
     "vscode": "^1.99.0"
   },
   "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Snippets",
     "Other"
   ],
   "activationEvents": [

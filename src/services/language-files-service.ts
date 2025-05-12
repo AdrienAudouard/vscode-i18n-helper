@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
+
 import { JsonKeyPathService } from './json-key-path-service';
 
 /**

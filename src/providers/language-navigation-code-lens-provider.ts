@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { LanguageFilesService } from '../services/language-files-service';
+
 import { JsonKeyPathService } from '../services/json-key-path-service';
+import { LanguageFilesService } from '../services/language-files-service';
 
 /**
  * Provider for adding CodeLens items that allow navigation between language files
