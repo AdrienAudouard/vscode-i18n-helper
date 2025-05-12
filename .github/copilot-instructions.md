@@ -33,6 +33,11 @@ This document provides detailed guidelines and expectations for using GitHub Cop
 
 6. **Always update README**
    -  Always update the readme with the new feature added
+   - Only add meaningful information for the end user
+
+7. **Always implement unit and integration tests**
+   - All changes must do not breaks the tests
+   - All changes must comes with new integration tests
 
 ---
 
