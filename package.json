@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "homepage": "https://github.com/AdrienAudouard/vscode-i18n-studio",
   "repository": "https://github.com/AdrienAudouard/vscode-i18n-studio",
+  "bugs": "https://github.com/AdrienAudouard/vscode-i18n-helper/issues",
   "icon": "images/logo.png",
   "keywords": [
     "i18n",
