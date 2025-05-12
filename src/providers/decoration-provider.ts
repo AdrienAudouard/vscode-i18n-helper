@@ -30,6 +30,19 @@ export class DecorationProvider {
   }
 
   /**
+   * Truncates a translation value if it's longer than the maximum length
+   * @param value The translation value to truncate
+   * @param maxLength The maximum length allowed
+   * @returns The truncated string with '...' suffix if needed
+   */
+  private truncateTranslationValue(value: string, maxLength: number): string {
+    if (value.length <= maxLength) {
+      return value;
+    }
+    return `${value.substring(0, maxLength)}...`;
+  }
+
+  /**
    * Updates decorations in the active editor
    * @param editor The active text editor
    */
@@ -50,6 +63,9 @@ export class DecorationProvider {
     const text = document.getText();
     const decorations: vscode.DecorationOptions[] = [];
     
+    // Get the configured maximum translation length
+    const maxTranslationLength = config.get<number>('maxTranslationLength') ?? 30;
+    
     // Find potential i18n keys in the document using the shared regex pattern
     const keyPattern = new RegExp(I18N_KEY_PATTERN);
     
@@ -63,11 +79,14 @@ export class DecorationProvider {
         const endPos = document.positionAt(match.index + match[0].length);
         const range = new vscode.Range(startPos, endPos);
         
+        // Truncate translation value if it's longer than the configured max length
+        const displayValue = this.truncateTranslationValue(translationValue, maxTranslationLength);
+        
         const decoration = {
           range,
           renderOptions: {
             after: {
-              contentText: `${translationValue}`
+              contentText: `${displayValue}`
             }
           }
         };

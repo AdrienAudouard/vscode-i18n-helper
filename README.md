@@ -6,6 +6,8 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 
 - Automatically loads Angular i18n translation files (defaults to `src/assets/i18n/en.json`)
 - Displays translated values next to i18n keys in HTML and TypeScript files
+  - Translations longer than 30 characters are automatically truncated with "..." suffix for better readability
+  - The truncation length is configurable via settings
 ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/html-translated-label.png?raw=true)
 ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/ts-translated-label.png?raw=true)
 - Supports nested i18n keys with dot notation (e.g., `"general.generate"`)
@@ -26,6 +28,7 @@ This extension contributes the following settings:
 * `i18nHelper.i18nFilePath`: Path to the i18n JSON file relative to the workspace root (defaults to `src/assets/i18n/en.json`)
 * `i18nHelper.tsAutocompletionEnabled`: Enable/disable autocompletion in TypeScript files
 * `i18nHelper.showTranslationButtons`: Show inline buttons above JSON keys to navigate between different language files
+* `i18nHelper.maxTranslationLength`: Maximum length of translation text displayed in-line before truncating with '...' (defaults to 30)
 
 ## Commands
 

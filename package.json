@@ -103,6 +103,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show inline buttons above JSON keys to navigate between different language translation files"
+        },
+        "i18nHelper.maxTranslationLength": {
+          "type": "number",
+          "default": 30,
+          "description": "Maximum length of translation text displayed in-line before truncating with '...'"
         }
       }
     }
