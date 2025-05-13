@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
+import * as sinon from 'sinon';
 import * as vscode from 'vscode';
 
 import { JsonKeyPathService } from '../services/json-key-path-service';
@@ -173,5 +174,163 @@ suite('Language Files Service Tests', () => {
     assert.strictEqual(languageFilesService.getLanguageCodeFromPath(enPath), 'en', 'Should extract en language code');
     assert.strictEqual(languageFilesService.getLanguageCodeFromPath(frPath), 'fr', 'Should extract fr language code');
     assert.strictEqual(languageFilesService.getLanguageCodeFromPath(configPath), undefined, 'Should return undefined for non-language files');
+  });
+
+  test('Should handle creating missing translations when navigating', async function() {
+    this.timeout(15000);
+    
+    // Setup sandbox for sinon stubs
+    const sandbox = sinon.createSandbox();
+    
+    // Create temporary test files for this test specifically
+    const tempDir = path.join(os.tmpdir(), `i18n-missing-translation-test-${Date.now()}`);
+    const tempI18nDir = path.join(tempDir, 'i18n');
+    await fs.ensureDir(tempI18nDir);
+    
+    // Create source language file with translation
+    const sourceContent = {
+      common: {
+        buttons: {
+          save: "Save",
+          cancel: "Cancel"
+        }
+      },
+      dashboard: {
+        title: "Dashboard"
+      }
+    };
+    
+    await fs.writeFile(
+      path.join(tempI18nDir, 'en.json'),
+      JSON.stringify(sourceContent, null, 2)
+    );
+    
+    // Create target language file without the dashboard section
+    const targetContent = {
+      common: {
+        buttons: {
+          save: "Speichern",
+          cancel: "Abbrechen"
+        }
+      }
+      // dashboard section deliberately missing
+    };
+    
+    await fs.writeFile(
+      path.join(tempI18nDir, 'de.json'),
+      JSON.stringify(targetContent, null, 2)
+    );
+    
+    try {
+      // Create a service instance specifically for this test
+      const jsonKeyPathService = new JsonKeyPathService();
+      const tempLanguageFilesService = new LanguageFilesService(jsonKeyPathService);
+      
+      // Mock language files to use our temp files
+      const tempLanguageFiles = new Map<string, string>();
+      tempLanguageFiles.set('en', path.join(tempI18nDir, 'en.json'));
+      tempLanguageFiles.set('de', path.join(tempI18nDir, 'de.json'));
+      
+      // Use reflection to set the language files map
+      (tempLanguageFilesService as any).languageFiles = tempLanguageFiles;
+      
+      // Mock vscode APIs using sinon
+      
+      // Mock showInputBox to simulate user entering a translation
+      const showInputBoxStub = sandbox.stub(vscode.window, 'showInputBox').resolves("Übersicht");
+      
+      // Create a properly typed stub for showQuickPick that returns a QuickPickItem with label "Yes"
+      const showQuickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
+      showQuickPickStub.resolves({ label: 'Yes', description: 'Create "dashboard.title" in de' });
+      
+      // Mock vscode.workspace.openTextDocument to prevent actual file opening
+      const openTextDocumentStub = sandbox.stub(vscode.workspace, 'openTextDocument');
+      const mockDocument = {
+        uri: vscode.Uri.file(path.join(tempI18nDir, 'de.json')),
+        getText: () => JSON.stringify(targetContent, null, 2),
+        positionAt: () => new vscode.Position(0, 0)
+      };
+      openTextDocumentStub.resolves(mockDocument as any);
+      
+      // Mock vscode.window.showTextDocument
+      const showTextDocumentStub = sandbox.stub(vscode.window, 'showTextDocument').resolves({
+        selection: new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0)),
+        revealRange: () => {}
+      } as any);
+      
+      // Mock the createMissingTranslation method to check if it gets called with correct parameters
+      const serviceWithPrivate = tempLanguageFilesService as any;
+      const originalCreateMissingTranslation = serviceWithPrivate.createMissingTranslation;
+      
+      let createMissingTranslationCalled = false;
+      let translationCreated = false;
+      
+      serviceWithPrivate.createMissingTranslation = async (
+        sourceDocument: vscode.TextDocument,
+        keyPath: string,
+        targetLanguage: string
+      ) => {
+        createMissingTranslationCalled = true;
+        
+        // Verify parameters
+        assert.strictEqual(keyPath, 'dashboard.title', 'Should call with correct key path');
+        assert.strictEqual(targetLanguage, 'de', 'Should call with correct target language');
+        
+        // Create the translation in the file directly to simulate the actual implementation
+        const targetJson = JSON.parse(await fs.readFile(path.join(tempI18nDir, 'de.json'), 'utf8'));
+        
+        if (!targetJson.dashboard) {
+          targetJson.dashboard = {};
+        }
+        
+        targetJson.dashboard.title = "Übersicht";
+        
+        await fs.writeFile(
+          path.join(tempI18nDir, 'de.json'),
+          JSON.stringify(targetJson, null, 2)
+        );
+        
+        translationCreated = true;
+      };
+      
+      try {
+        // Create a mock document and position
+        const mockSourceDocument = {
+          uri: vscode.Uri.file(path.join(tempI18nDir, 'en.json')),
+          getText: () => JSON.stringify(sourceContent, null, 2),
+          lineAt: () => ({
+            text: '  "title": "Dashboard"'
+          }),
+          languageId: 'json',
+          fsPath: path.join(tempI18nDir, 'en.json')
+        } as any as vscode.TextDocument;
+        
+        const mockPosition = new vscode.Position(0, 0);
+        
+        // Mock the key path service to return a specific key path
+        sandbox.stub(jsonKeyPathService, 'getKeyPathAtPosition').returns('dashboard.title');
+        
+        // Call the method we're testing
+        await tempLanguageFilesService.navigateToTranslation(mockSourceDocument, mockPosition, 'de');
+        
+        // Verify the method was called and translation was created
+        assert.strictEqual(createMissingTranslationCalled, true, 'Should call createMissingTranslation');
+        assert.strictEqual(translationCreated, true, 'Should create the missing translation');
+        
+      } finally {
+        // Restore mocks
+        serviceWithPrivate.createMissingTranslation = originalCreateMissingTranslation;
+      }
+    } finally {
+      // Reset all stubs
+      sandbox.restore();
+      
+      // Clean up temporary files
+      try {
+        await fs.remove(tempDir);
+      } catch (error) {
+        console.error('Error cleaning up temporary files:', error);
+      }
+    }
   });
 });

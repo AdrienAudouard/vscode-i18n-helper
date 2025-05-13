@@ -38,6 +38,7 @@ This document provides detailed guidelines and expectations for using GitHub Cop
 7. **Always implement unit and integration tests**
    - All changes must do not breaks the tests
    - All changes must comes with new integration tests
+   - Always run the tests to make sure everything is working
 
 ---
 

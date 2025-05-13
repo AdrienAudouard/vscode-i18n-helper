@@ -19,6 +19,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 ![](https://github.com/AdrienAudouard/vscode-i18n-helper/blob/main/images/copy-key-path.gif?raw=true)
 - Easily add any text to the i18n translation file
 - Navigate between different language files with a single click in JSON files
+- Automatically create missing translations when navigating between language files
 
 ## Extension Settings
 
@@ -71,9 +72,22 @@ When working with multiple language files (e.g., en.json, fr.json, es.json), you
 1. Open any translation file (e.g., en.json)
 2. When your cursor is on a JSON key line, language buttons like "FR", "DE", "ES" will appear above the line
 3. Click on any language button to navigate directly to that key in the corresponding language file
-4. You can toggle this feature on/off in settings with the `i18nHelper.showTranslationButtons` option
+4. If the translation key doesn't exist in the target language file, you'll be prompted to create it
+5. You can toggle this feature on/off in settings with the `i18nHelper.showTranslationButtons` option
 
 This makes it easy to compare and edit translations across different languages without manually searching for the same key in each file.
+
+### Creating Missing Translations
+
+When navigating between language files, if a translation key exists in one language but not in another:
+
+1. The extension will detect the missing key and prompt you to create it
+2. If you choose "Yes", a dialog will appear asking for the translation value
+3. The dialog will pre-fill with the value from the source language as a starting point
+4. Once you enter a translation, the key and value will be created in the target language file
+5. The editor will then navigate to the newly created translation
+
+This feature ensures that your translation files stay in sync across different languages and helps you quickly add missing translations as you work.
 
 ## Example
 

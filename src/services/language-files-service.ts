@@ -178,10 +178,183 @@ export class LanguageFilesService {
           new vscode.Range(pos, pos),
           vscode.TextEditorRevealType.InCenter
         );
+      } else {
+        // Translation key not found in target language file
+        // Ask user if they want to create it
+        const quickPickItems: vscode.QuickPickItem[] = [
+          { label: 'Yes', description: `Create "${keyPath}" in ${targetLanguage}` },
+          { label: 'No', description: 'Cancel' }
+        ];
+        
+        const selectedItem = await vscode.window.showQuickPick(
+          quickPickItems,
+          {
+            placeHolder: `Translation key "${keyPath}" not found in ${targetLanguage}. Create it?`
+          }
+        );
+        
+        if (selectedItem && selectedItem.label === 'Yes') {
+          await this.createMissingTranslation(document, keyPath, targetLanguage);
+        }
       }
     } catch (error) {
       console.error('Error navigating to translation:', error);
       vscode.window.showErrorMessage(`Error navigating to translation: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  
+  /**
+   * Creates a missing translation key in the target language file
+   * @param sourceDocument The source document containing the original translation
+   * @param keyPath The dot notation key path of the translation
+   * @param targetLanguage The target language code
+   * @returns Promise that resolves when the translation has been created
+   */
+  private async createMissingTranslation(
+    sourceDocument: vscode.TextDocument,
+    keyPath: string,
+    targetLanguage: string
+  ): Promise<void> {
+    try {
+      // Get source and target file paths
+      const sourceFilePath = sourceDocument.uri.fsPath;
+      const targetFilePath = this.languageFiles.get(targetLanguage);
+      
+      if (!targetFilePath) {
+        vscode.window.showErrorMessage(`Target language file for "${targetLanguage}" not found`);
+        return;
+      }
+      
+      // Read content from both files
+      const sourceContent = await fs.readFile(sourceFilePath, 'utf8');
+      const targetContent = await fs.readFile(targetFilePath, 'utf8');
+      
+      // Parse JSON content
+      const sourceJson = JSON.parse(sourceContent);
+      const targetJson = JSON.parse(targetContent);
+      
+      // Get the source translation value
+      let sourceValue: string | null = null;
+      let currentSourceObj: any = sourceJson;
+      const keyParts = keyPath.split('.');
+      
+      // Navigate the source object to get the value
+      for (const part of keyParts) {
+        if (currentSourceObj[part] === undefined) {
+          sourceValue = null;
+          break;
+        }
+        currentSourceObj = currentSourceObj[part];
+      }
+      
+      if (typeof currentSourceObj !== 'string') {
+        sourceValue = null;
+      } else {
+        sourceValue = currentSourceObj;
+      }
+      
+      // Ask the user for the translation value
+      let translationValue: string | undefined;
+      
+      if (sourceValue) {
+        // If we have the source value, provide it as a suggestion
+        translationValue = await vscode.window.showInputBox({
+          prompt: `Enter translation for "${keyPath}" in ${targetLanguage.toUpperCase()}`,
+          value: sourceValue, // Suggest source value as default
+          placeHolder: `Translation for ${keyPath}`
+        });
+      } else {
+        // If no source value found, just ask for input
+        translationValue = await vscode.window.showInputBox({
+          prompt: `Enter translation for "${keyPath}" in ${targetLanguage.toUpperCase()}`,
+          placeHolder: `Translation for ${keyPath}`
+        });
+      }
+      
+      if (!translationValue) {
+        // User cancelled
+        return;
+      }
+      
+      // Create the nested structure and add the translation
+      let currentTargetObj = targetJson;
+      
+      for (let i = 0; i < keyParts.length - 1; i++) {
+        const part = keyParts[i];
+        
+        if (!currentTargetObj[part]) {
+          currentTargetObj[part] = {};
+        } else if (typeof currentTargetObj[part] !== 'object') {
+          // Convert value to object if needed (rare edge case)
+          const oldValue = currentTargetObj[part];
+          currentTargetObj[part] = { _value: oldValue };
+        }
+        
+        currentTargetObj = currentTargetObj[part];
+      }
+      
+      // Add the final value
+      const lastPart = keyParts[keyParts.length - 1];
+      currentTargetObj[lastPart] = translationValue;
+      
+      // Write updated content back to file
+      await fs.writeFile(targetFilePath, JSON.stringify(targetJson, null, 2), 'utf8');
+      
+      // Reload document to reflect changes if it's already open
+      const targetUri = vscode.Uri.file(targetFilePath);
+      const openDoc = vscode.workspace.textDocuments.find(doc => doc.uri.fsPath === targetFilePath);
+      
+      if (openDoc) {
+        await vscode.window.showTextDocument(openDoc, { preview: false });
+        await vscode.commands.executeCommand('workbench.action.files.revert');
+      }
+      
+      // Now navigate to the newly created translation
+      const targetDocument = await vscode.workspace.openTextDocument(targetUri);
+      const editor = await vscode.window.showTextDocument(targetDocument);
+      
+      // Try to find the key in the file to position the cursor
+      const text = targetDocument.getText();
+      
+      // Function to find the position of a nested key
+      const findPositionForKey = (keySegments: string[]): number => {
+        let searchPos = 0;
+        let currentDepth = 0;
+        
+        for (const segment of keySegments) {
+          const pattern = new RegExp(`"${segment}"\\s*:`, 'g');
+          pattern.lastIndex = searchPos;
+          
+          const match = pattern.exec(text);
+          if (match) {
+            searchPos = match.index + match[0].length;
+            currentDepth++;
+          } else {
+            break;
+          }
+        }
+        
+        return currentDepth === keySegments.length ? searchPos : -1;
+      };
+      
+      const newPosition = findPositionForKey(keyParts);
+      
+      if (newPosition !== -1) {
+        // Calculate line and character from position
+        const pos = targetDocument.positionAt(newPosition);
+        
+        // Set selection at the found position
+        editor.selection = new vscode.Selection(pos, pos);
+        editor.revealRange(
+          new vscode.Range(pos, pos),
+          vscode.TextEditorRevealType.InCenter
+        );
+        
+        vscode.window.showInformationMessage(`Created translation key "${keyPath}" in ${targetLanguage.toUpperCase()}`);
+      }
+    } catch (error) {
+      console.error('Error creating missing translation:', error);
+      vscode.window.showErrorMessage(`Error creating missing translation: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }
