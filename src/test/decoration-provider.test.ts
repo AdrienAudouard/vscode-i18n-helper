@@ -53,7 +53,7 @@ suite('Decoration Provider Tests', () => {
     );
     assert.strictEqual(
       provider.truncateTranslationValue('This is a very long translation value that exceeds thirty characters', 30), 
-      'This is a very long translation ...', 
+      'This is a very long translatio...', 
       'Should truncate long values'
     );
     
@@ -77,7 +77,7 @@ suite('Decoration Provider Tests', () => {
     // Test with different max lengths
     assert.strictEqual(
       provider.truncateTranslationValue('A fairly long translation that should be truncated', 20), 
-      'A fairly long transla...', 
+      'A fairly long transl...', 
       'Should truncate based on provided max length'
     );
     

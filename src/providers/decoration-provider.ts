@@ -82,8 +82,9 @@ export class DecorationProvider {
         // Truncate translation value if it's longer than the configured max length
         const displayValue = this.truncateTranslationValue(translationValue, maxTranslationLength);
         
-        const decoration = {
+        const decoration: vscode.DecorationOptions = {
           range,
+          hoverMessage: `Translation key: **${key}**\n\nTranslation value: **${translationValue}**`,
           renderOptions: {
             after: {
               contentText: `${displayValue}`
