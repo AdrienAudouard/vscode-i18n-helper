@@ -65,6 +65,11 @@
       {
         "command": "i18n-studio.navigateToTranslation",
         "title": "Navigate to Translation in Other Language File"
+      },
+      {
+        "command": "i18n-studio.toggleTableView",
+        "title": "Toggle Table View for Translations",
+        "icon": "$(preview)"
       }
     ],
     "menus": {
@@ -78,6 +83,18 @@
           "when": "editorHasSelection",
           "command": "i18n-studio.addSelectionToI18n",
           "group": "1_modification"
+        },
+        {
+          "when": "resourceLangId == json && resourceFilename =~ /^[a-z]{2}\\.json$/",
+          "command": "i18n-studio.toggleTableView",
+          "group": "1_modification"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceLangId == json && resourceFilename =~ /^[a-z]{2}\\.json$/",
+          "command": "i18n-studio.toggleTableView",
+          "group": "navigation"
         }
       ]
     },

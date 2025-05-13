@@ -20,6 +20,7 @@ A Visual Studio Code extension that helps Angular developers work with i18n tran
 - Easily add any text to the i18n translation file
 - Navigate between different language files with a single click in JSON files
 - Automatically create missing translations when navigating between language files
+- Table view for translation files that displays all language variants side by side for easy comparison and editing
 
 ## Extension Settings
 
@@ -38,6 +39,7 @@ This extension contributes the following settings:
 * `i18n Helper: Open Translation File`: Open the translation file at a specific key (usually triggered via code actions)
 * `Copy JSON Key Path`: Copy the full path to a JSON key (available in the context menu when right-clicking in JSON files)
 * `Navigate to Translation in Other Language File`: Navigate to the same key in a different language file (triggered via code actions or inline buttons)
+* `Toggle Table View for Translations`: Switch between JSON and table view for translation files
 
 ## How to Use
 
@@ -76,6 +78,24 @@ When working with multiple language files (e.g., en.json, fr.json, es.json), you
 5. You can toggle this feature on/off in settings with the `i18nHelper.showTranslationButtons` option
 
 This makes it easy to compare and edit translations across different languages without manually searching for the same key in each file.
+
+### Table View for Translation Files
+
+The table view provides a powerful way to manage translations across multiple languages:
+
+1. Open any language file (e.g., en.json, fr.json)
+2. Click on the "Toggle Table View for Translations" button in the editor title bar or context menu
+3. A table will open showing all translations with:
+   - First column: Translation keys
+   - Subsequent columns: Translations in each available language
+4. Features of the table view:
+   - Edit translations directly by clicking on any cell
+   - Search across all keys and translations using the search box
+   - Cells with unsaved changes are highlighted
+   - Save all changes at once with the "Save Changes" button
+   - Navigate back to the JSON view with the "Back to JSON View" button
+
+The table view makes it much easier to compare and edit translations across multiple languages simultaneously, rather than switching between different files.
 
 ### Creating Missing Translations
 
@@ -116,3 +136,5 @@ If your translation files contain:
 When you have a string like `"general.generate"` in your code, you'll see: `"general.generate" → Generate` displayed in your editor.
 
 If you're editing en.json and your cursor is on the "generate" key, you'll see a "FR" button above the line that you can click to navigate directly to the same key in fr.json.
+
+You can also click on the "Toggle Table View" button in the editor title area to switch to a table view that displays all of your translations side by side for easy comparison and editing.

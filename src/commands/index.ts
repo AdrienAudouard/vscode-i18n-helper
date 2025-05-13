@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import { JsonKeyPathService } from '../services/json-key-path-service';
 import { LanguageFilesService } from '../services/language-files-service';
+import { TableViewService } from '../services/table-view-service';
 import { TranslationService } from '../services/translation-service';
 
 /**
@@ -11,12 +12,14 @@ import { TranslationService } from '../services/translation-service';
  * @param translationService The translation service to use
  * @param jsonKeyPathService The JSON key path service to use
  * @param languageFilesService The language files service to use
+ * @param tableViewService The table view service to use
  * @returns Array of disposables for the registered commands
  */
 export function registerCommands(
   translationService: TranslationService,
   jsonKeyPathService: JsonKeyPathService,
-  languageFilesService: LanguageFilesService
+  languageFilesService: LanguageFilesService,
+  tableViewService: TableViewService
 ): vscode.Disposable[] {
   // Register a command to manually reload translations
   const reloadCommand = vscode.commands.registerCommand('i18n-studio.reloadTranslations', async () => {
@@ -197,12 +200,30 @@ export function registerCommands(
     }
   );
 
+  // Register command to toggle between JSON and table view
+  const toggleTableViewCommand = vscode.commands.registerCommand('i18n-studio.toggleTableView', async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== 'json') {
+      vscode.window.showInformationMessage('Table view is only available for JSON files');
+      return;
+    }
+
+    // Check if this is a language file
+    if (!languageFilesService.isLanguageFile(editor.document)) {
+      vscode.window.showInformationMessage('Table view is only available for language files');
+      return;
+    }
+
+    await tableViewService.showTableView(editor.document);
+  });
+
   return [
     reloadCommand, 
     toggleCommand, 
     openTranslationFileCommand, 
     copyJsonKeyPathCommand,
     addSelectionToI18nCommand,
-    navigateToTranslationCommand
+    navigateToTranslationCommand,
+    toggleTableViewCommand
   ];
 }

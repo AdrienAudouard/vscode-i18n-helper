@@ -7,6 +7,7 @@ import { JsonKeyPathService } from './services/json-key-path-service';
 import { LanguageFilesService } from './services/language-files-service';
 import { LanguageNavigationCodeLensProvider } from './providers/language-navigation-code-lens-provider';
 import { LanguageNavigationProvider } from './providers/language-navigation-provider';
+import { TableViewService } from './services/table-view-service';
 import { TranslationService } from './services/translation-service';
 import { registerCommands } from './commands';
 
@@ -18,6 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const translationService = new TranslationService();
 	const jsonKeyPathService = new JsonKeyPathService();
 	const languageFilesService = new LanguageFilesService(jsonKeyPathService);
+	const tableViewService = new TableViewService(context, languageFilesService, jsonKeyPathService);
 	const decorationProvider = new DecorationProvider(translationService);
 	const completionProvider = new I18nCompletionProvider(translationService);
 	const codeActionProvider = new I18nCodeActionProvider(translationService);
@@ -28,7 +30,12 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	// Register commands
-	const commandDisposables = registerCommands(translationService, jsonKeyPathService, languageFilesService);
+	const commandDisposables = registerCommands(
+		translationService, 
+		jsonKeyPathService, 
+		languageFilesService,
+		tableViewService
+	);
 
 	// Store disposables for TypeScript completion providers
 	let tsCompletionDisposables: vscode.Disposable[] = [];
