@@ -33,6 +33,44 @@ jobs:
         run: |
           npm version ${{ steps.extract_version.outputs.VERSION }} --no-git-tag-version --allow-same-version
 
+      - name: Get release details
+        id: get_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const tagName = context.ref.replace('refs/tags/', '');
+            const release = await github.rest.repos.getReleaseByTag({
+              owner,
+              repo,
+              tag: tagName
+            });
+            return {
+              body: release.data.body || '',
+              name: release.data.name || tagName
+            };
+
+      - name: Update CHANGELOG.md
+        run: |
+          version="${{ steps.extract_version.outputs.VERSION }}"
+          release_date=$(date +"%Y-%m-%d")
+          release_name="${{ fromJSON(steps.get_release.outputs.result).name }}"
+          release_body="${{ fromJSON(steps.get_release.outputs.result).body }}"
+          
+          # Create the new version entry
+          new_entry="## [${version}] - ${release_date}\n\n${release_body}\n\n"
+          
+          # Insert the new entry below the ## [Unreleased] line
+          sed -i "/## \[Unreleased\]/a\\
+          ${new_entry}" CHANGELOG.md
+          
+          echo "Updated CHANGELOG.md with version ${version} release notes"
+          
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md with ${version} release notes [skip ci]"
+
       - name: Build extension
         run: npm run package
 
